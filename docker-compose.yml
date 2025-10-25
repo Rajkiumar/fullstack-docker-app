@@ -1,17 +1,25 @@
 version: "3.9"
 
 services:
+  # PostgreSQL Database Service
   db:
     image: postgres:13
+    container_name: fullstack-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
+  # Backend Service (Node + Express)
   backend:
     build: ./backend
+    container_name: fullstack-backend
+    restart: unless-stopped
     environment:
       DB_HOST: db
       DB_USER: ${DB_USER}
@@ -23,12 +31,16 @@ services:
     depends_on:
       - db
 
+  # Frontend Service (React)
   frontend:
     build: ./frontend
+    container_name: fullstack-frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
       - backend
 
+# Named Volume for Postgres Persistence
 volumes:
   db-data:
